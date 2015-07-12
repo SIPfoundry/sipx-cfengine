@@ -1,0 +1,23 @@
+box: sipfoundrydev/sipx-docker-base-image:latest
+no-response-timeout: 10
+command-timeout: 120
+build:
+  steps:
+    - script: 
+        name: Create RPMS
+        code: |
+          yum update -y
+          make
+deploy:
+  steps:
+    - add-ssh-key:
+        keyname: STAGE_KEY
+        host: ${REPO_HOST}
+    - script: 
+        name: Deploying RPMS
+        code: |
+          echo SCP_PARAMS=${SCP_PARAMS}
+          scp -r -v -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no ${SCP_PARAMS}
+          ssh -v -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no ${CREATEREPO_PARAMS}
+
+
